@@ -53,63 +53,41 @@ whether you hit them:
 
 ## 1.
 
-<!-- Your criterion. It must name a number. -->
+The classifier should have an overall accuracy of at least 0.70 on the held-out test set across all three seeds.
 
-
-
-**Why this target:**
-
-
+**Why this target:** I chose 0.70 because I have three labels: analysis, hot_take, and reaction. Some movie posts can fit more than one category, so I think 70% would show that the classifier learned useful differences between them.
 
 ---
 
 ## 2.
 
-<!-- Your criterion. -->
+Each label should have an F1 score of at least 0.60 across all three seeds.
 
-
-
-**Why this target:**
-
-
+**Why this target:** I chose 0.60 because hot_take and reaction can be similar when a post is short or mostly opinion. I still want the classifier to perform reasonably well on every label instead of getting a good overall score by mainly predicting one label.
 
 ---
 
 ## 3.
 
-<!-- Your criterion. -->
+No single label should make up more than 60% of the 200 labeled posts.
 
-
-
-**Why this target:**
-
-
+**Why this target:** I chose 60% because I do not want the classifier to learn to predict one type of movie post most of the time. The analysis, hot_take, and reaction labels should all have enough examples for the model to learn their differences.
 
 ---
 
 ## 4.
 
-<!-- Your criterion. -->
+A second person using my label definitions should agree with my labels on at least 75% of a sample of 20 posts.
 
-
-
-**Why this target:**
-
-
+**Why this target:** I chose 75% because analysis, hot_take, and reaction have some borderline cases, but my definitions and decision rule should still be clear enough for another person to usually make the same choice.
 
 ---
 
 ## 5.
 
-<!-- Your criterion. -->
+Predictions with confidence of at least 0.80 should be correct at least 80% of the time on the held-out test set across all three seeds.
 
-
-
-**Why this target:**
-
-
-
----
+**Why this target:** I chose 80% because when the classifier is very confident that a movie post is analysis, hot_take, or reaction, I expect that prediction to be more reliable than an uncertain prediction.
 
 <!-- ─────────────────────────────────────────────────────────────────────────
      UNIT 6 — read this before you change anything above.
