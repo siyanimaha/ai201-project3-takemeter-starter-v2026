@@ -39,141 +39,119 @@
 
 ## What This Does
 
-<!-- Your community, and what your classifier sorts posts into. Three or four
-     sentences. -->
-
-
+This project uses posts from the public r/movies community on Reddit. My classifier sorts movie discussion into three categories: `analysis`, `hot_take`, and `reaction`. The goal is to distinguish between opinions that give supporting reasons, strong opinions with little explanation, and posts that mainly express an immediate emotional response.
 
 ---
 
 ## Label Taxonomy
 
-<!-- Each label: a one-sentence definition and two real examples from your
-     reading. Then your decision rule for the hardest boundary.
+### `analysis`
 
-     The decision rule is worth a point on its own and it's the thing most
-     people leave out. Every taxonomy has a hardest boundary. Name yours. -->
+**Definition:** A movie opinion that explains why using specific reasons, examples, or details.
 
-### `label_one`
+**Example 1:** "Electric Dreams would probably have to be up there. Very forgettable 80s romance but one of the best songs."
 
-**Definition:**
+**Example 2:** "The Gary Jules version of Mad World for the movie Donnie Darko. Great movie but I don't think it's anywhere as well known as that song."
 
-**Example 1:**
->
+### `hot_take`
 
-**Example 2:**
->
+**Definition:** A strong or confident movie opinion with little or no explanation or support.
 
-### `label_two`
+**Example 1:** "That film is an underrated classic, if only to see Gene Kelly on roller skates again."
 
-**Definition:**
+**Example 2:** "St. Elmo's Fire. Great song, bad movie nobody talks about anymore."
 
-**Example 1:**
->
+### `reaction`
 
-**Example 2:**
->
+**Definition:** A response that mainly expresses a feeling or immediate personal response to a movie.
+
+**Example 1:** "I've never seen the movie and I listen to the soundtrack all the time."
+
+**Example 2:** "I didn't even know it was from a movie!"
 
 ### The hardest boundary
 
-**Which two labels:**
+**Which two labels:** `hot_take` and `reaction`
 
-**The decision rule I used every time:**
-<!-- e.g. "If the post names a specific checkable fact, it's `analysis`, even
-     if the tone is heated." -->
-
-
+**The decision rule I used every time:** If the post makes a strong judgment about the quality or value of a movie without supporting reasons, I label it `hot_take`. If the post mainly describes the person's emotional response or feeling, I label it `reaction`. If the post supports its judgment with a specific reason, example, or detail, I label it `analysis`.
 
 ---
 
 ## The Dataset
 
-<!-- Where you collected from, how you labelled, your counts, and three hard
-     cases. -->
+I collected 200 public comments from the r/movies community on Reddit. I read movie-related discussions and organized the comments into my three labels. AI was used to help pre-label the dataset, and I reviewed the labels using my definitions and decision rules.
 
-**Where the posts came from:**
+### Label counts
 
-**How I labelled them:** <!-- Cold first? Pre-labelled with AI and corrected?
-Say so plainly — the disclosure is required, not penalised. -->
+- `analysis`: 93
+- `hot_take`: 83
+- `reaction`: 24
 
-**Counts per label:**
+The dataset is somewhat imbalanced because reaction posts were less common than analysis and hot takes in the discussion I collected from.
 
-| Label | Count | Share |
-|---|---|---|
-|  |  |  |
-|  |  |  |
-|  |  |  |
-| **Total** |  | 100% |
+### Three hard cases
 
-**Three hard cases**
+1. **Post:** "That film is an underrated classic, if only to see Gene Kelly on roller skates again."
+   - **Possible labels:** `hot_take` or `analysis`
+   - **My label:** `hot_take`
+   - **Why:** It gives a strong judgment that the movie is underrated, but it does not give enough detailed support to count as analysis.
 
-<!-- Any post that made you pause: what it was, which two labels it could have
-     been, and what you chose. These are worth more than the easy 190. -->
+2. **Post:** "I can't hear that song without pumping my fist in the air, so I don't think it qualifies."
+   - **Possible labels:** `reaction` or `hot_take`
+   - **My label:** `hot_take`
+   - **Why:** It includes a personal reaction, but the main point is the judgment that the song does not qualify.
 
-**1.**
-> *The post:*
->
-> *Could have been:*
->
-> *I chose, because:*
-
-**2.**
-> *The post:*
->
-> *Could have been:*
->
-> *I chose, because:*
-
-**3.**
-> *The post:*
->
-> *Could have been:*
->
-> *I chose, because:*
+3. **Post:** "Scared Tragically hip. It was in the trailer park boys movie. I like the movie but that song is amazing."
+   - **Possible labels:** `reaction` or `hot_take`
+   - **My label:** `reaction`
+   - **Why:** The post contains an opinion, but it mainly expresses the person's personal response to the movie and song.
 
 ---
 
 ## The Training Run
 
-<!-- Your starting model, your settings, and anything you changed and why. -->
+**Base model:** `distilbert-base-uncased`
 
-**Base model:**
+**Settings:** 3 epochs, learning rate `2e-5`, batch size 16, maximum length 128, seed 42.
 
-**Settings:** <!-- epochs, learning rate, batch size, seed -->
+**Anything I changed from the defaults, and why:** I kept the default training settings because I wanted to establish a baseline training run before making any changes.
 
-**Anything I changed from the defaults, and why:**
+**Split sizes:** 139 training posts, 31 validation posts, and 30 test posts.
 
-**Split sizes:** <!-- train / val / test, and per-label counts in the test
-split. If a label had fewer than about 8 in test, say so — it explains a lot
-of next unit's variance. -->
+The test split contained:
+- `analysis`: 14
+- `hot_take`: 12
+- `reaction`: 4
 
+The `reaction` label had only 4 examples in the test split, so its performance is less stable and should be interpreted carefully.
 
+### Results
+
+- Overall accuracy: 0.567
+- Macro F1: 0.358
+- `analysis` F1: 0.700
+- `hot_take` F1: 0.375
+- `reaction` F1: 0.000
+- Most-confident third accuracy: 0.800
+- Least-confident third accuracy: 0.400
 
 ---
 
 ## How I Used AI
 
-<!-- Two specific moments — what you asked, what came back, what you changed.
-
-     ⚠️ Plus disclosure of any pre-labelling. If you had a model pre-label a
-     batch and then read and corrected every one, say that. It's an allowed
-     workflow and disclosing it costs you nothing. Not disclosing it is the
-     problem. -->
-
 **Moment 1**
 
-- *What I asked for:*
-- *What came back:*
-- *What I changed:*
+- **What I asked for:** I used AI when I needed clarification about the differences between some of my labels.
+- **What came back:** AI explained the differences between `analysis`, `hot_take`, and `reaction` and gave suggestions for handling borderline cases.
+- **What I changed:** I used the suggestions as guidance while following my own label definitions and decision rules.
 
 **Moment 2**
 
-- *What I asked for:*
-- *What came back:*
-- *What I changed:*
+- **What I asked for:** I used AI to help me understand parts of the project instructions and notebook setup.
+- **What came back:** AI explained unfamiliar steps and helped me understand the notebook output.
+- **What I changed:** I followed the assignment requirements and used the explanations to complete the setup and training process.
 
-**Pre-labelling disclosure:**
-
+**Pre-labelling disclosure:** I used AI to assist with pre-labelling the collected posts. I personally reviewed the classifications using my label definitions and decision rules.
 <!-- ═══════════════════════ UNIT 6 — THE TEST ═══════════════════════
 
      Don't fill these in during unit 5.
