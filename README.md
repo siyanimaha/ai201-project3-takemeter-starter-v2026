@@ -160,140 +160,86 @@ The `reaction` label had only 4 examples in the test split, so its performance i
 ---
 
 ## Baseline vs. Trained
-
-<!-- Both models on the same posts. `python baseline.py --trained results.json`
-     prints this table for you. -->
-
 | Measure | Baseline | Trained | Difference |
 |---|---|---|---|
-| Overall accuracy |  |  |  |
-| Macro F1 |  |  |  |
-| F1 — `label_one` |  |  |  |
-| F1 — `label_two` |  |  |  |
+| Overall accuracy | 0.200 | 0.567 | +0.367 |
+| Macro F1 | 0.178 | 0.358 | +0.180 |
+| F1 — `analysis` | 0.133 | 0.700 | +0.567 |
+| F1 — `hot_take` | 0.143 | 0.375 | +0.232 |
+| F1 — `reaction` | 0.258 | 0.000 | -0.258 |
 
 **What I predicted before I looked:**
-<!-- Milestone 1 asks you to write this BEFORE seeing the trained numbers. A
-     prediction made afterwards isn't one. -->
+
+I predicted that my trained model would have higher overall accuracy and F1 scores than the baseline because it was trained specifically on my labeled movie posts.
 
 **What the gap actually means:**
-<!-- If the baseline matched your trained model, your fine-tuning added
-     nothing — and that is a real finding, not a failure. Say it plainly. -->
 
-
-
----
+My trained model performed better overall than the baseline. The biggest improvement was for `analysis`, where the F1 score increased from 0.133 to 0.700. The model also improved on `hot_take`. However, `reaction` dropped from 0.258 to 0.000, which shows that my trained model still has trouble identifying reaction posts.
 
 ## Run Log — Before
 
 <!-- Five criteria across three seeds. The notebook's section 6 prints the
      spread table; the Target and Verdict columns are yours. -->
 
-| Criterion | Target | Seed 42 | Seed 7 | Seed 2024 | Verdict |
-|---|---|---|---|---|---|
-| 1.  |  |  |  |  |  |
-| 2.  |  |  |  |  |  |
-| 3.  |  |  |  |  |  |
-| 4.  |  |  |  |  |  |
-| 5.  |  |  |  |  |  |
+| Measure | Seed 42 | Seed 7 | Seed 2024 | Spread |
+|---|---|---|---|---|
+| Overall accuracy | 0.567 | 0.633 | 0.667 | 0.100 |
+| Macro F1 | 0.358 | 0.441 | 0.476 | 0.118 |
+| F1 — `analysis` | 0.700 | 0.722 | 0.714 | 0.022 |
+| F1 — `hot_take` | 0.375 | 0.600 | 0.714 | 0.339 |
+| F1 — `reaction` | 0.000 | 0.000 | 0.000 | 0.000 |
+
+Accuracy moved 0.100 across seeds. Enough that a criterion landing within that band can't really be called either way.
 
 ### Confusion matrix
 
-<!-- ⚠️ TYPED AS A MARKDOWN TABLE. The notebook prints one ready to paste.
-     An image of a matrix earns nothing. -->
-
-| true \ predicted |  |  |  |
+| true \ predicted | analysis | hot_take | reaction |
 |---|---|---|---|
-| **** |  |  |  |
-| **** |  |  |  |
-| **** |  |  |  |
+| **analysis** | 14 | 0 | 0 |
+| **hot_take** | 9 | 3 | 0 |
+| **reaction** | 3 | 1 | 0 |
 
 **My biggest off-diagonal number, and what it means:**
-<!-- Not "the model made mistakes" — WHICH boundary it didn't learn, and which
-     direction. "7 real analysis posts were called hot_take and only 3 went the
-     other way" is a direction, not just an error rate. -->
 
-
+The biggest confusion was that 9 real `hot_take` posts were predicted as `analysis`, while 0 real `analysis` posts were predicted as `hot_take`. This shows that the model leans toward predicting `analysis` when it has trouble telling the difference between `hot_take` and `analysis`.
 
 ---
 
 ## Verdicts and Diagnoses
 
-<!-- MET or MISSED against LAST UNIT's target. The target has to hold across
-     all three seeds, not turn up sometimes. -->
-
 | # | Criterion | Target | Verdict | How I decided |
 |---|---|---|---|---|
-| 1 |  |  |  |  |
-| 2 |  |  |  |  |
-| 3 |  |  |  |  |
-| 4 |  |  |  |  |
-| 5 |  |  |  |  |
+| 1 | Overall accuracy | At least 0.70 across all three seeds | MISSED | Accuracy was 0.567, 0.633, and 0.667. All three seeds were below 0.70. |
+| 2 | Per-label F1 | At least 0.60 for every label across all three seeds | MISSED | `reaction` had an F1 of 0.000 in all three seeds. `hot_take` also had an F1 of only 0.375 for Seed 42. |
+| 3 | Label balance | No single label should make up more than 60% of the 200 posts | MET | The largest label was `analysis` with 93 of 200 posts, or 46.5%, which is below 60%. |
+| 4 | Label agreement | At least 75% agreement with another labeler | MET | I agreed with the staff labels on 30 out of 30 posts, giving me 100% agreement. |
+| 5 | High-confidence accuracy | Predictions with confidence of at least 0.80 should be correct at least 80% of the time across all three seeds | NOT DIRECTLY MEASURABLE | The evaluation reports accuracy for the most-confident third, not predictions with confidence of at least 0.80. The most-confident-third accuracy was 0.80, 0.90, and 1.00 across the three seeds, but this is not the exact measurement in my original criterion. |
 
 **Diagnoses**
 
-<!-- For each miss: the cause, and how you know. The four common causes are:
-     too few examples for a label, a boundary you applied inconsistently, a
-     genuinely hard label pair, and a task the model can't reach from this
-     much data.
+**Criterion 1 — Overall accuracy:**  
+The model missed the 0.70 accuracy target across all three seeds. A major problem is the `reaction` label. The model did not correctly identify reaction posts, which lowered the overall performance. My 100% agreement with the staff labels suggests that my labeling rules are consistent, so this looks more like a model/data problem than a labeling consistency problem.
 
-     ⚠️ Use your agreement report as evidence. It is the only instrument you
-     have that can tell a LABELLING problem from a MODEL problem, and this
-     section is graded on whether you used it that way. -->
+**Criterion 2 — Per-label F1:**  
+The biggest problem is `reaction`, which had an F1 of 0.000 for all three seeds. `reaction` is also my smallest label with only 24 examples, compared with 93 `analysis` and 83 `hot_take` examples. This gives the model much less reaction data to learn from. My 100% staff agreement also suggests that the main problem is not that I am applying the label definitions inconsistently.
 
-
+**Criterion 5 — High-confidence accuracy:**  
+I cannot give the original criterion a fair MET or MISSED verdict because my evaluation does not calculate accuracy specifically for predictions with confidence of at least 0.80. It calculates accuracy for the most-confident third instead. Those results were 0.80, 0.90, and 1.00, which show that more-confident predictions were generally more accurate, but they do not directly test my original threshold.
 
 ---
 
 ## Agreement Report
+## Agreement Report
 
-<!-- Your rate against the staff set, and every disagreement adjudicated.
-
-     Remember you labelled these 30 under the STAFF taxonomy in
-     data/staff_taxonomy.md, not your own — so every argument below is made
-     from those definitions and those decision rules. -->
-
-**Agreement rate:** ___ / 30 = ___%
-
-<!-- Nobody grades this number. A 60% who argues every disagreement from the
-     stated rules beats a 95% who wrote "staff was right" nine times. Several
-     of the 30 were chosen because they're genuinely ambiguous — you should be
-     winning some of these. -->
+**Agreement rate:** **30 / 30 = 100%**
 
 **Disagreements**
 
-<!-- Three lines each: the post, both labels, and who you think is right and
-     why — grounded in the staff definitions you were both applying.
-
-     Then sort each into one of three piles:
-       (a) the rule covered it and I applied it loosely → a consistency problem
-       (b) the rule genuinely doesn't say               → a gap in the definitions
-       (c) the rule is ambiguous here and my reading is defensible → argue it.
-           This is a legitimate win.
-
-     Pile (a) is the one that matters most for your diagnosis: if you applied a
-     written rule two different ways on 30 posts, that is direct evidence about
-     what you did across your own 200. -->
-
-**1.**
-> *The post:*
->
-> *Staff said / I said:*
->
-> *My call, and why:*
->
-> *Which pile:*
-
-**2.**
-> *The post:*
->
-> *Staff said / I said:*
->
-> *My call, and why:*
->
-> *Which pile:*
+There were no disagreements. I matched the staff label on all 30 posts.
 
 **What the pattern in my disagreements tells me:**
 
+Since I had no disagreements with the staff labels, the staff taxonomy and decision rules were clear for this set. This also suggests that inconsistent labeling was not the main cause of my model's poor performance on `reaction`.
 
 
 ---
